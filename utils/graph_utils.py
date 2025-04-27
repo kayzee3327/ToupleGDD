@@ -8,6 +8,10 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from multiprocessing import Pool
 
+import pandas as pd
+from typing import Optional
+from pprint import pprint
+
 random.seed(123)
 np.random.seed(123)
 
@@ -31,6 +35,11 @@ class Graph:
         self._adj = None
         self._from_to_edges = None
         self._from_to_edges_weight = None
+
+        self.name_mapping_num: Optional[dict[str, int]] = None
+        self.num_mapping_name: Optional[dict[int, str]] = None
+
+        self.path: Optional[str] = None
 
     def get_children(self, node):
         ''' outgoing nodes '''
@@ -72,6 +81,43 @@ def read_graph(path, ind=0, directed=False):
     children = {}
     edges = {}
     nodes = set()
+
+    if path.split('.')[-1] == "csv":
+        df = pd.read_csv(path)
+        node_cnt = 0
+        name_num = {}
+        num_name = {}
+        for index, row in df.iterrows():
+            src_name = row['source']
+            dst_name = row['target']
+            wgt = float(row['weight'])
+            if src_name in name_num:
+                src = name_num[src_name]
+            else:
+                src = node_cnt
+                node_cnt += 1
+                name_num[src_name] = src
+                num_name[src] = src_name
+            
+            if dst_name in name_num:
+                dst = name_num[dst_name]
+            else:
+                dst = node_cnt
+                node_cnt += 1
+                name_num[dst_name] = dst
+                num_name[dst] = dst_name
+
+            nodes.add(src)
+            nodes.add(dst)
+            children.setdefault(src, set()).add(dst)
+            parents.setdefault(dst, set()).add(src)
+            edges[(src, dst)] = wgt
+        g = Graph(nodes, edges, children, parents)
+        g.name_mapping_num = name_num
+        g.num_mapping_name = num_name
+        g.path = path
+
+        return g
 
     with open(path, 'r') as f:
         for line in f:

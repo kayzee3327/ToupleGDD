@@ -338,14 +338,15 @@ class Tripling(nn.Module):
             return q_on_all
 
 
-def get_init_node_embed(graph, num_epochs, device):
+def get_init_node_embed(graph: graph_utils.Graph, num_epochs, device):
     ''' use deep walk to generate initial node embedding 
         according to the graph structure (node connection and edge weight)
     '''
     model = DeepWalkNeg(graph, embedding_dim=50, walk_length=3, r_hop=5, r_hop_size=5, 
         walks_per_node=50, num_negative_samples=5, restart=0.15, sparse=True).to(device)
-
+    
     loader = model.loader(batch_size=32, shuffle=True, num_workers=4)
+    
     optimizer = torch.optim.SparseAdam(list(model.parameters()), lr=0.01)
 
     def train():
@@ -361,7 +362,12 @@ def get_init_node_embed(graph, num_epochs, device):
 
     for epoch in range(num_epochs):
         loss = train()
-
+    
+    # for name, param in model.named_parameters():
+    #     print(f"Name: {name}")
+    #     print(f"Shape: {param.shape}")
+    #     print(f"Values (first 5 elements): {param.data.flatten()}\n")
+    
     return model().detach().cpu().clone()
 
 

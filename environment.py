@@ -5,6 +5,8 @@ import random
 import time
 import utils.graph_utils as graph_utils
 
+from utils.graph_utils import Graph
+
 random.seed(123)
 np.random.seed(123)
 
@@ -18,7 +20,7 @@ class Environment:
         '''
         # sampled set of graphs
         self.name = name
-        self.graphs = graphs
+        self.graphs: list[Graph] = graphs
         # IM
         self.budget = budget
         self.method = method

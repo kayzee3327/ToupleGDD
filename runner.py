@@ -9,6 +9,9 @@ import os
 import time
 from statistics import mean
 
+import pandas as pd
+from environment import Environment
+
 torch.manual_seed(123)
 np.random.seed(123)
 
@@ -17,7 +20,7 @@ class Runner:
     def __init__(self, train_env, test_env, agent, training):
         self.train_env = train_env
         self.test_env = test_env # environment for testing
-        self.agent = agent
+        self.agent: rl_agents.Agent = agent
         self.training = training
 
     def play_game(self, num_iterations, epsilon, training=True, time_usage=False, one_time=False):
@@ -27,9 +30,9 @@ class Runner:
             one_time: generate the seed set at once without regenerating embeddings
         '''
         if training:
-            self.env = self.train_env
+            self.env: Environment = self.train_env
         else:
-            self.env = self.test_env
+            self.env: Environment = self.test_env
 
         c_rewards = []
         im_seeds = []
@@ -60,7 +63,7 @@ class Runner:
                         start_time = time.time()
                         self.agent.graph_node_embed[id(self.env.graphs[g_idx])] = models.get_init_node_embed(self.env.graphs[g_idx], 0, self.agent.device) # epochs for initial embedding
                         print(f'Time of generating initial embedding for {self.env.graphs[g_idx].path_graph}: {time.time()-start_time:.2f} seconds')
-                        
+
                     if time_usage:
                         start_time = time.time()
                         time_reward = [0.0] # time of calculating reward, needs to be subtracted
@@ -85,7 +88,6 @@ class Runner:
                         for i in count():
                             state = torch.tensor(self.env.state, dtype=torch.long)
                             action = self.agent.select_action(self.env.graph, state, epsilon, training=training).item()
-
                             final_reward, done = self.env.step(action, time_reward)
                             # this game is over
                             if done:
@@ -170,3 +172,28 @@ class Runner:
                 if cnt == len(self.env.graphs):
                     print('')
                     cnt = 0
+
+    def dismantle_network(self, num_trials=1):
+        ''' let agent act in the environment
+            num_trials: may need multiple trials to get average
+        '''
+        print('Generate seed one by one:', flush=True)
+        all_rewards, all_seeds = self.play_game(num_trials, 0.0, False, time_usage = True, one_time = False)
+        print(f'Number of trials: {num_trials}')
+        print(f'Graph path: {", ".join(g.path_graph for g in self.env.graphs)}')
+        cnt = 0
+
+        if not os.path.isdir("ans"):
+            os.mkdir("ans")
+
+        for _, a_s in zip(all_rewards, all_seeds):
+            g = self.env.graphs[cnt % len(self.env.graphs)]
+            name = g.path.split('\\')[-1]
+            mapping = g.num_mapping_name
+            nodes = g.nodes
+            ans = a_s + list(set(a_s) ^ set(nodes))
+            ans = [mapping[node] for node in ans]
+            target_path = os.path.join(os.getcwd(), "ans", name)
+            print("Saving " + target_path + " ...")
+            pd.DataFrame(ans, columns=["remove order"]).to_csv(target_path)
+            print("stored answer for input " + name)

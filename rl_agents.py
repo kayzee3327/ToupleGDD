@@ -225,7 +225,7 @@ class DQAgent:
             with torch.no_grad():
                 q_a = self.model(graph_input)
             q_a[state.nonzero()] = -1e5
-
+            
             if budget is None:
                 return torch.argmax(q_a).detach().clone()
             else: # return all seed nodes within budget at one time

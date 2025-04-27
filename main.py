@@ -34,6 +34,7 @@ parser.add_argument('--n_step', type=int, default=2, help='n step transitions in
 parser.add_argument('--cpu', action='store_true', default=False, help='use CPU')
 parser.add_argument('--test', action='store_true', default=False, help='test performance of model')
 parser.add_argument('--environment_name', metavar='ENV_CLASS', type=str, default='IM', help='Class to use for the environment. Must be in the \'environment\' module')
+parser.add_argument('--dismantle', action='store_true', default=False, help='GRAND experiments using model')
 
 def main():
     ##### Load Arguments #####
@@ -90,7 +91,11 @@ def main():
     if not(args.test):
         my_runner.train(args.epoch, args.model_file, 'list_cumul_reward.txt')
     else:
-        my_runner.test(num_trials=10)
+        if args.dismantle:
+            my_runner.dismantle_network()
+            
+        else:
+            my_runner.test(num_trials=10)
 
 if __name__ == "__main__":
     start_time = time.time()
