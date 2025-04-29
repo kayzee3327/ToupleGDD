@@ -201,3 +201,4 @@ class Runner:
             print("Saving " + target_path + " ...")
             pd.DataFrame(ans, columns=["remove order"]).to_csv(target_path)
             print("stored answer for input " + name)
+            cnt += 1

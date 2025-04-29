@@ -2,3 +2,5 @@
 __pycache__
 other
 .DS_Store
+ans/
+time_on_each_graph.txt
