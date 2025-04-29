@@ -11,6 +11,7 @@ from statistics import mean
 
 import pandas as pd
 from environment import Environment
+from typing import Optional
 
 torch.manual_seed(123)
 np.random.seed(123)
@@ -55,6 +56,7 @@ class Runner:
                         self.agent.memorize(self.env)
                         break
             else:
+                time_f = open("time_on_each_graph.txt", 'w')
                 for g_idx in range(len(self.env.graphs)):
                     # measure time of generating initial embedding if need to print time
                     # this may prevent the initial embedding generation of rl_agent side:
@@ -80,6 +82,7 @@ class Runner:
 
                         if time_usage:
                             total_time += time.time() - start_time
+                            
 
                         final_reward = self.env.compute_reward(actions)
                         c_rewards.append(final_reward)
@@ -97,6 +100,7 @@ class Runner:
                                 break
                         if time_usage:
                             total_time += time.time() - start_time - time_reward[0]
+                            time_f.write(self.env.graphs[g_idx].path + "\t\t" + str(total_time) + '\n')
         if time_usage:
             print(f'Seed set generation per iteration time usage is: {total_time/num_iterations:.2f} seconds')
         return c_rewards, im_seeds

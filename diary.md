@@ -7,5 +7,5 @@
 # Usage
 
 ``` shell
-python main.py --graph flight_delay_data --model Tripling --model_file tripling.ckpt --budget 100 --test --dismantle
+python main.py --graph flight_delay_data --model Tripling --model_file tripling.ckpt --budget 150 --test --dismantle
 ```
