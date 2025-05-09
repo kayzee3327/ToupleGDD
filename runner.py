@@ -92,6 +92,7 @@ class Runner:
                             state = torch.tensor(self.env.state, dtype=torch.long)
                             action = self.agent.select_action(self.env.graph, state, epsilon, training=training).item()
                             final_reward, done = self.env.step(action, time_reward)
+                            tqdm.write(f"Runner.play_game(): test step {i} finished")
                             # this game is over
                             if done:
                                 # no sort of action selected
@@ -101,6 +102,7 @@ class Runner:
                         if time_usage:
                             total_time += time.time() - start_time - time_reward[0]
                             time_f.write(self.env.graphs[g_idx].path + "\t\t" + str(total_time) + '\n')
+                        tqdm.write(f"Runner.play_game(): test g_idx {g_idx}/len(self.env.graphs) finished")
         if time_usage:
             print(f'Seed set generation per iteration time usage is: {total_time/num_iterations:.2f} seconds')
         return c_rewards, im_seeds
@@ -123,6 +125,7 @@ class Runner:
             
             if epoch % 10 == 0:
                 self.play_game(10, eps)
+                tqdm.write("Runner.train(): train playgame success")
 
             if epoch % 10 == 0:
                 # test

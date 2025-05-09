@@ -61,7 +61,7 @@ def main():
     args.double_dqn = True
 
     if not args.test: # for training of tripling
-        time_stamp = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+        time_stamp = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
         if not os.path.exists(time_stamp):
             os.makedirs(time_stamp)
 
