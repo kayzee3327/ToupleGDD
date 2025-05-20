@@ -56,7 +56,7 @@ class Runner:
                         self.agent.memorize(self.env)
                         break
             else:
-                time_f = open("time_on_each_graph.txt", 'w')
+                time_f = open("time_on_each_graph.txt", 'a')
                 for g_idx in range(len(self.env.graphs)):
                     # measure time of generating initial embedding if need to print time
                     # this may prevent the initial embedding generation of rl_agent side:
@@ -101,7 +101,7 @@ class Runner:
                                 break
                         if time_usage:
                             total_time += time.time() - start_time - time_reward[0]
-                            time_f.write(self.env.graphs[g_idx].path + "\t\t" + str(total_time) + '\n')
+                            time_f.write(self.env.graphs[g_idx].path + "\t" + str(total_time) + '\n')
                         tqdm.write(f"Runner.play_game(): test g_idx {g_idx}/len(self.env.graphs) finished")
         if time_usage:
             print(f'Seed set generation per iteration time usage is: {total_time/num_iterations:.2f} seconds')
